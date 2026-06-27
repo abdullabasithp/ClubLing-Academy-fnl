@@ -686,32 +686,32 @@
             <div class="col-lg-5">
                 <div class="contact-form-area">
                     <h4>Get In Touch</h4>
-                    <div class="row">
+                    <form id="contactForm" class="row">
                         <div class="col-lg-12">
                             <div class="input-area">
-                                <input type="text" placeholder="First Name">
+                                <input type="text" name="firstName" placeholder="First Name" required>
                             </div>
                         </div>
 
                         <div class="col-lg-12">
                             <div class="input-area">
-                                <input type="text" placeholder="Last Name">
+                                <input type="text" name="lastName" placeholder="Last Name" required>
                             </div>
                         </div>
 
                         <div class="col-lg-12">
                             <div class="input-area">
-                                <input type="email" placeholder="Email Address">
+                                <input type="email" name="email" placeholder="Email Address" required>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="input-area">
-                                <input type="number" placeholder="Phone Number">
+                                <input type="number" name="phone" placeholder="Phone Number" required>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="input-area">
-                              <textarea placeholder="Your Message"></textarea>
+                              <textarea name="message" placeholder="Your Message" required></textarea>
                             </div>
                         </div>
                         <div class="col-lg-12">
@@ -719,7 +719,10 @@
                              <button type="submit" class="header-btn1">Get In Touch <span><i class="fa-solid fa-arrow-right"></i></span></button>
                             </div>
                         </div>
-                    </div>
+                        <div class="col-lg-12">
+                            <p id="contactFormStatus" style="margin-top:12px;"></p>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -904,6 +907,45 @@
 <script src="assets/js/plugins/slick-slider.js"></script>
 <script src="assets/js/plugins/circle-progress.js"></script>
 <script src="assets/js/main.js"></script>
+
+<!-- Contact form -> Google Sheet (Google Drive) -->
+<script>
+  (function () {
+    var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzU_K5Axz4ruK0VZzccxwTn_FOaSRYjCGo2n7Z2aUxUOuvHKIlr5I_ldHwyBWXo2pLX/exec";
+
+    var form = document.getElementById("contactForm");
+    var status = document.getElementById("contactFormStatus");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var button = form.querySelector("button[type=submit]");
+      var originalText = button ? button.innerHTML : "";
+      if (button) { button.disabled = true; button.innerHTML = "Sending..."; }
+      status.style.color = "#555";
+      status.textContent = "Sending your message...";
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: new FormData(form)
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error("Request failed");
+          status.style.color = "green";
+          status.textContent = "Thank you! Your message has been sent.";
+          form.reset();
+        })
+        .catch(function () {
+          status.style.color = "red";
+          status.textContent = "Sorry, something went wrong. Please try again.";
+        })
+        .finally(function () {
+          if (button) { button.disabled = false; button.innerHTML = originalText; }
+        });
+    });
+  })();
+</script>
 
 </body>
 </html>
